@@ -1,0 +1,51 @@
+service: codebuild-result-monitor
+custom:
+  stage: "${opt:stage, self:provider.stage}"
+provider:
+  name: aws
+  runtime: python3.6
+  timeout: 180
+  region: ap-northeast-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+      Resource: "arn:aws:logs:*:*:*"
+    - Effect: "Allow"
+      Action:
+        - "ec2:Start*"
+        - "ec2:Stop*"
+        - "ec2:Describe*"
+      Resource: "*"
+    - Effect: "Allow"
+      Action:
+        - "kms:Decrypt"
+      Resource: ${file(decrypt-${self:custom.stage}.arn)}
+    - Effect: "Allow"
+      Action:
+        - "s3:Get*"
+        - "s3:List*"
+      Resource: "arn:aws:s3:::*"
+functions:
+  notify:
+    handler: handler.notify
+    memorySize: 128
+    events:
+      - cloudwatchEvent:
+          event:
+            source:
+              - "aws.codebuild"
+            detail-type:
+              - "CodeBuild Build State Change"
+            detail:
+              build-status:
+                - IN_PROGRESS
+                - SUCCEEDED
+                - FAILED
+                - STOPPED
+              project-name:
+                - ${file(codebuild-${self:custom.stage}.prj)}
+          enabled: true
+    environment: ${file(environment-${self:custom.stage}.yml)}

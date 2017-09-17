@@ -1,0 +1,6 @@
+SLACK_ENDPOINT: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+SLACK_CHANNEL: "#your-slack-channel"
+SLACK_USERNAME: "CodeBuildMonitor"
+SLACK_ICON_EMOJI: ":icon:"
+ARTIFACTS_BUCKET: "your-artifact-bucket"
+RESULT_URL_EXPIRE: 3600
